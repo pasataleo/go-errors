@@ -37,15 +37,15 @@ func Wrapf(err error, format string, args ...any) error {
 	}
 }
 
-func Embed[Data any](err error, data Data) error {
+func Embed(err error, data any) error {
 	if e, ok := err.(*WrappingError); ok {
-		return &DataContainingError[Data]{
+		return &DataContainingError{
 			WrappingError: e,
 			data:          data,
 		}
 	}
 
-	return &DataContainingError[Data]{
+	return &DataContainingError{
 		WrappingError: &WrappingError{
 			err:   err,
 			wraps: nil,

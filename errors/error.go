@@ -2,6 +2,12 @@ package errors
 
 import "fmt"
 
+var (
+	_ error         = (*WrappingError)(nil)
+	_ Codeable      = (*WrappingError)(nil)
+	_ DataContainer = (*DataContainingError)(nil)
+)
+
 type WrappingError struct {
 	err   error
 	wraps error
@@ -35,12 +41,12 @@ func (e *WrappingError) Unwrap() error {
 	return e.wraps
 }
 
-type DataContainingError[Data any] struct {
+type DataContainingError struct {
 	*WrappingError
 
-	data Data
+	data interface{}
 }
 
-func (d *DataContainingError[Data]) GetEmbeddedData() Data {
+func (d *DataContainingError) GetEmbeddedData() interface{} {
 	return d.data
 }

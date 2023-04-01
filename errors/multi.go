@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	_ error                  = (*multi)(nil)
-	_ Codeable               = (*multi)(nil)
-	_ DataContainer[[]error] = (*multi)(nil)
+	_ error         = (*multi)(nil)
+	_ Codeable      = (*multi)(nil)
+	_ DataContainer = (*multi)(nil)
 )
 
 type multi struct {
@@ -27,7 +27,7 @@ func (m *multi) GetErrorCode() ErrorCode {
 	return ErrorCodeMulti
 }
 
-func (m *multi) GetEmbeddedData() []error {
+func (m *multi) GetEmbeddedData() interface{} {
 	return m.errs
 }
 

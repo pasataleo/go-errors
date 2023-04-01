@@ -1,8 +1,8 @@
 package errors
 
-type DataContainer[Data any] interface {
+type DataContainer interface {
 	error
-	GetEmbeddedData() Data
+	GetEmbeddedData() interface{}
 }
 
 func GetEmbeddedData[Data any](err error) (Data, bool) {
@@ -11,8 +11,10 @@ func GetEmbeddedData[Data any](err error) (Data, bool) {
 		return data, false
 	}
 
-	if container, ok := err.(DataContainer[Data]); ok {
-		return container.GetEmbeddedData(), true
+	if container, ok := err.(DataContainer); ok {
+		if value, ok := container.GetEmbeddedData().(Data); ok {
+			return value, true
+		}
 	}
 
 	return data, false
