@@ -1,6 +1,6 @@
 # pasataleo/go-errors
 
-This is my golang errors library.
+This is my golang errors library. It is a work in progress.
 
 It contains some common implementations of error functionality wrapped into a 
 single library. You can create simple new errors, create slices of errors, and 
@@ -9,6 +9,10 @@ wrap errors with additional information.
 This library can also embed error codes and generic data within the errors it
 creates and returns. This allows users to return additional data that can be 
 processed by callers.
+
+In addition, this library includes an implementation of a `Diagnostic` interface.
+Diagnostics provide a more complex implementation of errors that can be used to
+return more detailed information about an error.
 
 ## Error Codes
 
@@ -63,3 +67,46 @@ You can pass any error into the append function as the first argument. If it is
 already a multi error then the new errors will simply be added into the existing
 multi. If it is `nil` or another kind of error, a new multi error will be 
 created and the supplied errors combined.
+
+## Diagnostics
+
+Diagnostics have 3 severity levels: `errors.SeverityInfo`, `errors.SeverityWarning`, and `errors.SeverityError`.
+
+You can create new diagnostics using the `Info`, `Warning`, and `Error` functions:
+
+```golang
+package my_library
+
+import "github.com/pasataleo/go-errors/diagnostics"
+
+func validate() diagnostics.Diagnostics {
+	var diags diagnostics.Diagnostics
+	
+	diags = append(diags, diagnostics.Info("item is valid").Build())
+	diags = append(diags, diagnostics.Warning("item is not recommended").Build())
+    diags = append(diags, diagnostics.Error("item is invalid").Build())
+		
+    return diags
+}
+```
+
+You can also create diagnostics with additional data:
+
+```golang
+package my_library
+
+import "github.com/pasataleo/go-errors/diagnostics"
+
+func validate() diagnostics.Diagnostics {
+    var diags diagnostics.Diagnostics
+    
+    diags = append(diags, diagnostics.Info("item is valid").AddMetadata("item", "value").Build())
+    diags = append(diags, diagnostics.Warning("item is not recommended").AddMetadata("item", "value").Build())
+    diags = append(diags, diagnostics.Error("item is invalid").AddMetadata("item", "value").Build())
+        
+    return diags
+}
+```
+
+The diagnostics can be processed by callers to determine the severity of the returned errors and act accordingly. The
+additional metadata and information can also be used to render the error messages in a more user-friendly way.

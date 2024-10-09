@@ -5,9 +5,11 @@ import "fmt"
 var (
 	_ error         = (*WrappingError)(nil)
 	_ Codeable      = (*WrappingError)(nil)
+	_ Unwrappable   = (*WrappingError)(nil)
 	_ DataContainer = (*DataContainingError)(nil)
 )
 
+// WrappingError is an error that can wrap another error.
 type WrappingError struct {
 	err   error
 	wraps error
@@ -15,6 +17,7 @@ type WrappingError struct {
 	code ErrorCode
 }
 
+// Error implements the error interface.
 func (e *WrappingError) Error() string {
 	if e == nil {
 		return ""
@@ -26,6 +29,7 @@ func (e *WrappingError) Error() string {
 	return fmt.Sprintf("%s (%s)", e.err.Error(), e.wraps.Error())
 }
 
+// GetErrorCode implements the Codeable interface.
 func (e *WrappingError) GetErrorCode() ErrorCode {
 	if e == nil {
 		return ErrorCodeOk
@@ -33,6 +37,7 @@ func (e *WrappingError) GetErrorCode() ErrorCode {
 	return e.code
 }
 
+// Unwrap implements the Unwrappable interface.
 func (e *WrappingError) Unwrap() error {
 	if e == nil {
 		return nil
@@ -41,12 +46,14 @@ func (e *WrappingError) Unwrap() error {
 	return e.wraps
 }
 
+// DataContainingError is an extension to the WrappingError struct that contains embedded data.
 type DataContainingError struct {
 	*WrappingError
 
-	data interface{}
+	data map[string]interface{}
 }
 
-func (d *DataContainingError) GetEmbeddedData() interface{} {
+// EmbeddedData implements the DataContainer interface.
+func (d *DataContainingError) EmbeddedData() map[string]interface{} {
 	return d.data
 }

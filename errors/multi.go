@@ -6,15 +6,15 @@ import (
 )
 
 var (
-	_ error         = (*multi)(nil)
-	_ Codeable      = (*multi)(nil)
-	_ DataContainer = (*multi)(nil)
+	_ error    = (*multi)(nil)
+	_ Codeable = (*multi)(nil)
 )
 
 type multi struct {
 	errs []error
 }
 
+// Error implements the error interface.
 func (m *multi) Error() string {
 	var errs []string
 	for _, err := range m.errs {
@@ -23,14 +23,12 @@ func (m *multi) Error() string {
 	return fmt.Sprintf("multierror: [%s]", strings.Join(errs, ","))
 }
 
+// GetErrorCode implements the Codeable interface.
 func (m *multi) GetErrorCode() ErrorCode {
 	return ErrorCodeMulti
 }
 
-func (m *multi) GetEmbeddedData() interface{} {
-	return m.errs
-}
-
+// Append appends the given errors to the current error.
 func Append(current error, next ...error) error {
 	if current == nil {
 		if len(next) == 0 {
@@ -58,4 +56,18 @@ func Append(current error, next ...error) error {
 	return &multi{
 		errs: errs,
 	}
+}
+
+// Expand will expand the provider error into multiple errors if it is a multi error. Otherwise, it will return a slice
+// containing the single error.
+func Expand(err error) []error {
+	if err == nil {
+		return nil
+	}
+
+	if multi, ok := err.(*multi); ok {
+		return multi.errs
+	}
+
+	return []error{err}
 }
